@@ -57,10 +57,14 @@ End Sub
 
 Private Sub InsertVBComponent(ByVal CompFileName As String)
     Dim vbcomp As VBComponent, addModule As Boolean, file As Variant
+    Dim modules As Collection, model As Variant
+    Set modules = New Collection
+    
     addModule = False
     file = Split(CompFileName, ".")
     For Each vbcomp In ThisWorkbook.VBProject.VBComponents
         If ((vbcomp.Type = vbext_ct_StdModule) Or (vbcomp.Type = vbext_ct_ClassModule) Or (vbcomp.Type = vbext_ct_MSForm)) Then
+           modules.Add vbcomp.Name
             If vbcomp.Name = file(0) Then
                 addModule = True
                 GoTo en:
@@ -71,9 +75,28 @@ Private Sub InsertVBComponent(ByVal CompFileName As String)
         If CompFileName <> "" Then
             On Error Resume Next
             Application.ActiveWorkbook.VBProject.VBComponents.Import "C:\Users\" & Environ("UserName") & "\Desktop\" & CompFileName
-            On Error GoTo 0
+            'On Error GoTo 0
         End If
     End If
+    
+    file = Split(CompFileName, ".")
+    For Each vbcomp In ThisWorkbook.VBProject.VBComponents
+        addModule = True
+        If ((vbcomp.Type = vbext_ct_StdModule) Or (vbcomp.Type = vbext_ct_ClassModule) Or (vbcomp.Type = vbext_ct_MSForm)) Then
+            For Each model In modules
+                If vbcomp.Name = model Then
+                    addModule = False
+                    GoTo nxt:
+                End If
+            Next model
+        
+nxt:
+            If addModule = True Then
+                vbcomp.Name = file(0)
+            End If
+        End If
+    Next vbcomp
+
 en:
 End Sub
 
