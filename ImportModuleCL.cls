@@ -1,9 +1,12 @@
-'"C:\Users\" & Environ("userName") & "\Desktop\"
+'Sub ScrapeData()
+'    Dim WD As New ImportModuleCL
+'    WD.HTMLScrape("Test.bas") = "https://raw.githubusercontent.com/kjtakke/Excel-VBA/master/ScrapeDel"
+'End Sub
+
 Const LineDel = "{%;%}"
-Private HTML_String As String 'HTML String Variable
+Private HTML_String As String
 
 Public Property Let HTMLScrape(fileName As String, URL As String)
-    'Pass the URL into the Scrape Sub
     Dim HTML_Array As Variant, HTML_Text As String
     Call Get_HTML_Body(URL)
     HTML_Array = Split(HTML_String, LineDel)
@@ -14,29 +17,19 @@ Public Property Let HTMLScrape(fileName As String, URL As String)
 End Property
 
 Private Sub Get_HTML_Body(URL As String)
-    'Get the HTML Body from a URL
-    
     Dim http As Object, html As New HTMLDocument
     Dim HTMLText As String, HTMLArray As Variant
     Dim i As Integer
-
     On Error GoTo Error_Message:
-
     Set http = CreateObject("MSXML2.XMLHTTP")
-
     http.Open "GET", URL, False
     http.send
-
     html.body.innerHTML = http.responseText
     HTML_String = html.body.innerHTML
-
     GoTo Scraped_Data:
-
 Error_Message:
     MsgBox ("Can not access the library server at this time")
-    
 Scraped_Data:
-
 End Sub
 
 Private Function arrayToText(ary As Variant) As String
@@ -75,10 +68,9 @@ Private Sub InsertVBComponent(ByVal CompFileName As String)
         If CompFileName <> "" Then
             On Error Resume Next
             Application.ActiveWorkbook.VBProject.VBComponents.Import "C:\Users\" & Environ("UserName") & "\Desktop\" & CompFileName
-            'On Error GoTo 0
+            On Error GoTo 0
         End If
     End If
-    
     file = Split(CompFileName, ".")
     For Each vbcomp In ThisWorkbook.VBProject.VBComponents
         addModule = True
@@ -89,27 +81,25 @@ Private Sub InsertVBComponent(ByVal CompFileName As String)
                     GoTo nxt:
                 End If
             Next model
-        
 nxt:
             If addModule = True Then
                 vbcomp.Name = file(0)
             End If
         End If
     Next vbcomp
-
 en:
 End Sub
 
 Private Sub DeleteFile(ByVal FileToDelete As String)
     FileToDelete = "C:\Users\" & Environ("UserName") & "\Desktop\" & FileToDelete
-If FileExists(FileToDelete) Then
-      SetAttr FileToDelete, vbNormal
-      Kill FileToDelete
-   End If
+    If FileExists(FileToDelete) Then
+        SetAttr FileToDelete, vbNormal
+        Kill FileToDelete
+    End If
 End Sub
 
 Private Function FileExists(ByVal FileToTest As String) As Boolean
-   FileExists = (Dir(FileToTest) <> "")
+    FileExists = (Dir(FileToTest) <> "")
 End Function
 
 
